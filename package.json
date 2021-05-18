@@ -1,0 +1,25 @@
+{
+  "name": "lambda-logging",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaicoh/lambda-logging.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kaicoh/lambda-logging/issues"
+  },
+  "homepage": "https://github.com/Kaicoh/lambda-logging#readme",
+  "devDependencies": {
+    "serverless": "^2.41.2",
+    "serverless-iam-roles-per-function": "^3.1.0",
+    "serverless-pseudo-parameters": "^2.5.0",
+    "serverless-rust": "^0.3.8"
+  }
+}
