@@ -1,0 +1,44 @@
+service: lambda-logging
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: rust
+  profile: kanji
+  region: ap-northeast-1
+
+custom:
+  rust:
+    dockerTag: 1.51.0
+    dockerImage: kaicoh/lambda-rust
+
+plugins:
+  - serverless-rust
+  - serverless-pseudo-parameters
+
+package:
+  individually: true
+
+functions:
+  ship-logs-to-logzio:
+    handler: functions.ship_logs
+    description: Sends CloudWatch logs to Logz.io
+    memorySize: 128
+    environment:
+      RUST_LOG: debug
+      LOGSTACH_HOST: listener.logz.io
+      LOGSTACH_PORT: 5015
+      TOKEN: ${env:TOKEN}
+
+resources:
+  Resources:
+    LambdaInvokePermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:InvokeFunction
+        FunctionName:
+          Fn::Join:
+            - ''
+            - - Ref: ShipDashlogsDashtoDashlogzioLambdaFunction
+        Principal: logs.#{AWS::Region}.amazonaws.com
