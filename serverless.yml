@@ -27,8 +27,8 @@ functions:
     memorySize: 128
     environment:
       RUST_LOG: debug
-      LOGSTACH_HOST: listener.logz.io
-      LOGSTACH_PORT: 5015
+      LOGSTASH_HOST: listener.logz.io
+      LOGSTASH_PORT: 5015
       TOKEN: ${env:TOKEN}
 
 resources:

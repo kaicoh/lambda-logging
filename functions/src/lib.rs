@@ -12,10 +12,10 @@ use std::str::FromStr;
 
 lazy_static! {
     static ref LOG_STREAM_REGEX: Regex = Regex::new(r"^.+\[(?:([0-9a-zA-Z]+))\].+$").unwrap();
-    static ref LOGSTACH_HOST: String =
-        env::var("LOGSTACH_HOST").expect("env LOGSTACH_HOST is required");
-    static ref LOGSTACH_PORT: String =
-        env::var("LOGSTACH_PORT").expect("env LOGSTACH_PORT is required");
+    static ref LOGSTASH_HOST: String =
+        env::var("LOGSTASH_HOST").expect("env LOGSTASH_HOST is required");
+    static ref LOGSTASH_PORT: String =
+        env::var("LOGSTASH_PORT").expect("env LOGSTASH_PORT is required");
     static ref TOKEN: String = env::var("TOKEN").expect("env TOKEN is required");
 }
 
@@ -70,7 +70,7 @@ struct Log<'a> {
 }
 
 pub fn send_log_stream(log_group: &str, log_stream: &str, log_events: Vec<LogEvent>) {
-    let addr = format!("{}:{}", *LOGSTACH_HOST, *LOGSTACH_PORT);
+    let addr = format!("{}:{}", *LOGSTASH_HOST, *LOGSTASH_PORT);
     let addrs: Vec<SocketAddr> = addr.to_socket_addrs().unwrap().collect();
 
     let func_name = function_name(log_group);
