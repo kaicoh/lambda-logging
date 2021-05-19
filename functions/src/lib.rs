@@ -12,8 +12,10 @@ use std::str::FromStr;
 
 lazy_static! {
     static ref LOG_STREAM_REGEX: Regex = Regex::new(r"^.+\[(?:([0-9a-zA-Z]+))\].+$").unwrap();
-    static ref LOGSTACH_HOST: String = env::var("LOGSTACH_HOST").expect("env LOGSTACH_HOST is required");
-    static ref LOGSTACH_PORT: String = env::var("LOGSTACH_PORT").expect("env LOGSTACH_PORT is required");
+    static ref LOGSTACH_HOST: String =
+        env::var("LOGSTACH_HOST").expect("env LOGSTACH_HOST is required");
+    static ref LOGSTACH_PORT: String =
+        env::var("LOGSTACH_PORT").expect("env LOGSTACH_PORT is required");
     static ref TOKEN: String = env::var("TOKEN").expect("env TOKEN is required");
 }
 
@@ -93,12 +95,12 @@ pub fn send_log_stream(log_group: &str, log_stream: &str, log_events: Vec<LogEve
                     };
 
                     let msg = format!("{}\n", serde_json::to_string(&log).unwrap());
-                    writer.write(msg.as_bytes()).unwrap();
+                    writer.write_all(msg.as_bytes()).unwrap();
                 }
             }
 
             writer.flush().unwrap();
-        },
+        }
         Err(err) => {
             log::error!("Tcp connection failed: {}", err);
         }
@@ -116,7 +118,9 @@ fn lambda_version(log_stream: &str) -> &str {
 }
 
 fn system_message(message: &str) -> bool {
-    message.starts_with("START RequestId") || message.starts_with("END RequestId") || message.starts_with("REPORT RequestId")
+    message.starts_with("START RequestId")
+        || message.starts_with("END RequestId")
+        || message.starts_with("REPORT RequestId")
 }
 
 fn message_parts(message: &str) -> (&str, &str, &str) {
@@ -156,15 +160,13 @@ fn log_message(event: LogEvent) -> Option<LogMessage> {
                 fields: Some(Value::Object(fields)),
                 timestamp,
             }
-        },
-        _ => {
-            LogMessage {
-                level: LogLevel::Debug,
-                message: event.into(),
-                fields: None,
-                timestamp,
-            }
         }
+        _ => LogMessage {
+            level: LogLevel::Debug,
+            message: event.into(),
+            fields: None,
+            timestamp,
+        },
     };
 
     Some(log_message)
@@ -200,14 +202,15 @@ mod tests {
         let message = "REPORT RequestId: 5e665f81-641f-11e6-ab0f-b1affae60d28\tDuration: 1095.52 ms\tBilled Duration: 1100 ms \tMemory Size: 128 MB\tMax Memory Used: 32 MB\t\n";
         assert!(system_message(message));
 
-        let message = "2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\tloading index.html...\n";
+        let message =
+            "2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\tloading index.html...\n";
         assert!(!system_message(message));
-
     }
 
     #[test]
     fn test_message_parts() {
-        let message = "2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\tloading index.html...\n";
+        let message =
+            "2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\tloading index.html...\n";
 
         let (timestamp, request_id, event) = message_parts(message);
         assert_eq!(timestamp, "2017-04-26T10:41:09.023Z");
@@ -217,7 +220,8 @@ mod tests {
 
     #[test]
     fn test_log_message() {
-        let event = event_factory("START RequestId: 67c005bb-641f-11e6-b35d-6b6c651a2f01 Version: 31\n");
+        let event =
+            event_factory("START RequestId: 67c005bb-641f-11e6-b35d-6b6c651a2f01 Version: 31\n");
         assert!(log_message(event).is_none());
 
         let event = event_factory("END RequestId: 5e665f81-641f-11e6-ab0f-b1affae60d28\n");
@@ -226,13 +230,18 @@ mod tests {
         let event = event_factory("REPORT RequestId: 5e665f81-641f-11e6-ab0f-b1affae60d28\tDuration: 1095.52 ms\tBilled Duration: 1100 ms \tMemory Size: 128 MB\tMax Memory Used: 32 MB\t\n");
         assert!(log_message(event).is_none());
 
-        let event = event_factory("2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\tloading index.html...\n");
-        assert_eq!(log_message(event), Some(LogMessage {
-            level: LogLevel::Debug,
-            message: "loading index.html...\n".into(),
-            fields: None,
-            timestamp: DateTime::parse_from_rfc3339("2017-04-26T10:41:09.023Z").unwrap()
-        }));
+        let event = event_factory(
+            "2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\tloading index.html...\n",
+        );
+        assert_eq!(
+            log_message(event),
+            Some(LogMessage {
+                level: LogLevel::Debug,
+                message: "loading index.html...\n".into(),
+                fields: None,
+                timestamp: DateTime::parse_from_rfc3339("2017-04-26T10:41:09.023Z").unwrap()
+            })
+        );
 
         let data = r#"
             {
@@ -241,17 +250,23 @@ mod tests {
                 "other": "other value"
             }
         "#;
-        let event = event_factory(&format!("2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\t{}\n", data));
+        let event = event_factory(&format!(
+            "2017-04-26T10:41:09.023Z	db95c6da-2a6c-11e7-9550-c91b65931beb\t{}\n",
+            data
+        ));
         let expected_fields = serde_json::json!({
             "request_id": "db95c6da-2a6c-11e7-9550-c91b65931beb",
             "other": "other value"
         });
-        assert_eq!(log_message(event), Some(LogMessage {
-            level: LogLevel::Error,
-            message: "This is a test".into(),
-            fields: Some(expected_fields),
-            timestamp: DateTime::parse_from_rfc3339("2017-04-26T10:41:09.023Z").unwrap()
-        }));
+        assert_eq!(
+            log_message(event),
+            Some(LogMessage {
+                level: LogLevel::Error,
+                message: "This is a test".into(),
+                fields: Some(expected_fields),
+                timestamp: DateTime::parse_from_rfc3339("2017-04-26T10:41:09.023Z").unwrap()
+            })
+        );
     }
 
     fn event_factory(message: &str) -> LogEvent {

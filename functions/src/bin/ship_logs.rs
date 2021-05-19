@@ -1,4 +1,4 @@
-use aws_lambda_events::event::cloudwatch_logs::{CloudwatchLogsEvent as Event, CloudwatchLogsData};
+use aws_lambda_events::event::cloudwatch_logs::{CloudwatchLogsData, CloudwatchLogsEvent as Event};
 use flate2::read::GzDecoder;
 use lambda_runtime::{handler_fn, Context, Error};
 use simple_logger::SimpleLogger;
