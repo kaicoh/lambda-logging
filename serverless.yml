@@ -28,7 +28,7 @@ functions:
     environment:
       RUST_LOG: debug
       LOGSTASH_HOST: listener.logz.io
-      LOGSTASH_PORT: 5015
+      LOGSTASH_PORT: 5050
       TOKEN: ${env:TOKEN}
 
 resources:

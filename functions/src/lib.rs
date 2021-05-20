@@ -11,7 +11,7 @@ use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
 use std::str::FromStr;
 
 lazy_static! {
-    static ref LOG_STREAM_REGEX: Regex = Regex::new(r"^.+\[(?:([0-9a-zA-Z]+))\].+$").unwrap();
+    static ref LOG_STREAM_REGEX: Regex = Regex::new(r"^.+\[(?:([0-9a-zA-Z\$]+))\].+$").unwrap();
     static ref LOGSTASH_HOST: String =
         env::var("LOGSTASH_HOST").expect("env LOGSTASH_HOST is required");
     static ref LOGSTASH_PORT: String =
@@ -187,8 +187,8 @@ mod tests {
         let log_stream = "2016/08/17/[76]afe5c000d5344c33b5d88be7a4c55816";
         assert_eq!(lambda_version(log_stream), "76");
 
-        let log_stream = "2016/08/17/[LATEST]afe5c000d5344c33b5d88be7a4c55816";
-        assert_eq!(lambda_version(log_stream), "LATEST");
+        let log_stream = "2016/08/17/[$LATEST]afe5c000d5344c33b5d88be7a4c55816";
+        assert_eq!(lambda_version(log_stream), "$LATEST");
     }
 
     #[test]

@@ -23,6 +23,8 @@ async fn lambda(event: Event, _: Context) -> Result<(), Error> {
         let mut json = String::new();
         decoder.read_to_string(&mut json)?;
 
+        log::debug!("Decoded json: {}", json);
+
         let CloudwatchLogsData {
             log_group,
             log_stream,
